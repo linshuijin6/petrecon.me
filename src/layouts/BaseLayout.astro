@@ -1,0 +1,57 @@
+---
+import '../styles/global.css';
+import { profile } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = `${profile.name} · Biomedical AI & AI Research Engineering`,
+  description = 'Research portfolio of Shuijin Lin: biomedical AI, PET/MRI, multimodal learning, AI agents and research engineering.'
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0b1220" />
+    <link rel="canonical" href={canonical} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="shell nav-shell">
+        <a class="brand" href="/" aria-label="Shuijin Lin home">
+          <span class="brand-mark">SL</span>
+          <span class="brand-copy"><strong>Shuijin Lin</strong><small>Biomedical AI · Research Engineering</small></span>
+        </a>
+        <nav class="nav" aria-label="Primary navigation">
+          <a href="/research">Research</a>
+          <a href="/agents">Agents & Skills</a>
+          <a href="/infrastructure">Infrastructure</a>
+          <a href="/publications">Publications</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="shell footer-grid">
+        <div>
+          <strong>{profile.name} · {profile.nameZh}</strong>
+          <p>{profile.role}<br />{profile.institution} · {profile.lab}</p>
+        </div>
+        <div class="footer-links">
+          <a href={`mailto:${profile.email}`}>{profile.email}</a>
+          <a href={profile.github} target="_blank" rel="noreferrer">GitHub ↗</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,45 @@
+---
+import { workflow } from '../data/site';
+---
+<div class="workflow-v11" aria-label="Multi-model AI research workflow">
+  <div class="workflow-source">
+    <span class="workflow-source-dot"></span>
+    <div>
+      <strong>Research question / repository</strong>
+      <small>Scientific intent + current codebase</small>
+    </div>
+  </div>
+
+  <div class="workflow-pipeline">
+    {workflow.map((step, index) => (
+      <>
+        <div class={`workflow-step ${step.kind === 'gate' ? 'workflow-step-gate' : ''} ${step.kind === 'human' ? 'workflow-step-human' : ''}`}>
+          <div class="workflow-step-top">
+            <span class="workflow-step-index">0{index + 1}</span>
+            <span class="workflow-step-kind">{step.kind}</span>
+          </div>
+          <strong>{step.name}</strong>
+          <em>{step.role}</em>
+          <p>{step.note}</p>
+          <div class="workflow-output">{step.output}</div>
+        </div>
+        {index < workflow.length - 1 && <div class="workflow-connector" aria-hidden="true"><span>→</span></div>}
+      </>
+    ))}
+  </div>
+
+  <div class="workflow-verification">
+    <div>
+      <span class="verification-badge">Verification gate</span>
+      <strong>Reconnaissance is evidence, not implementation authority.</strong>
+    </div>
+    <p>Critical claims are checked against the live repository before Codex edits code. If the report and repository disagree, the repository wins and the discrepancy is surfaced.</p>
+  </div>
+
+  <div class="workflow-footnote">
+    <span>Copilot → IDE assistance</span>
+    <span>Kiro CLI → CLI agents</span>
+    <span>MCP → GitHub / Notion / Drive / Gmail</span>
+    <span>Human-in-the-loop → scientific QC</span>
+  </div>
+</div>

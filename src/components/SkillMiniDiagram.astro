@@ -1,0 +1,35 @@
+---
+const { skill } = Astro.props;
+---
+<div class={`skill-mini skill-mini-${skill.slug}`} aria-label={`${skill.name} architecture preview`}>
+  {skill.slug === 'repository-reconnaissance' && (
+    <>
+      <div class="mini-row"><span class="mini-node">Task</span><b>→</b><span class="mini-node">Trace</span><b>→</b><span class="mini-node">Evidence</span></div>
+      <div class="mini-triad"><span>CONFIRMED</span><span>INFERRED</span><span>UNRESOLVED</span></div>
+      <div class="mini-report">Repository Reconnaissance Report</div>
+    </>
+  )}
+  {skill.slug === 're-handoff' && (
+    <>
+      <div class="mini-row"><span class="mini-node">Recon report</span><b>→</b><span class="mini-gate">VERIFY</span><b>→</b><span class="mini-node">Plan</span></div>
+      <div class="mini-gate-note">Current repository = ground truth</div>
+      <div class="mini-row compact"><span>Drift?</span><b>→</b><span>Implement</span><b>→</b><span>Validate</span></div>
+    </>
+  )}
+  {skill.slug === 'research-dev' && (
+    <>
+      <div class="mini-row"><span class="mini-node">Understand</span><b>→</b><span class="mini-node">Plan</span><b>→</b><span class="mini-node">Implement</span></div>
+      <div class="mini-guardrails"><span>Baseline protected</span><span>Read-only shell</span><span>Minimal change</span></div>
+      <div class="mini-row compact"><span>Checks</span><b>→</b><span>Report</span></div>
+    </>
+  )}
+  {skill.slug === 'cluster-task-orchestrator' && (
+    <>
+      <div class="mini-cluster">
+        <span>GPU State</span><b>→</b><span>VRAM Route</span><b>→</b><span>Reservation</span>
+      </div>
+      <div class="mini-lifecycle"><span>HOLD</span><b>→</b><span>HANDOFF</span><b>→</b><span>TASK</span><b>→</b><span>QC</span></div>
+      <div class="mini-gate-note">PID identity · operator-authorized launch</div>
+    </>
+  )}
+</div>
