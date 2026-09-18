@@ -1,67 +1,289 @@
 ---
-import { clusterStates } from '../data/site';
+const nodes = [
+  { name: 'Node A', tier: '24 GB tier', gpus: [72, 18, 0, 91, 6] },
+  { name: 'Node B', tier: '48 GB tier', gpus: [96, 63, 87, 22, 94, 42] },
+  { name: 'Node C', tier: '48 GB tier', gpus: [58, 76, 94, 89, 31, 68] },
+  { name: 'Node D', tier: '24 GB tier', gpus: [4, 0, 0, 11, 0, 0, 0, 0] },
+  { name: 'Node E', tier: '24 GB tier', gpus: [71, 0, 66, 3] },
+];
 ---
-<div class="infra-dashboard" aria-label="Public-safe recreation of the private multi-node GPU dashboard">
-  <div class="infra-topbar">
+<div class="infra-dashboard infra-dashboard-live" data-live-cluster aria-label="Public-safe simulated live research cluster dashboard">
+  <div class="live-banner">
+    <div class="live-banner-copy">
+      <span class="sim-live-badge"><i></i> Simulated live view · 5s</span>
+      <span class="sim-live-note">Derived from the production dashboard structure; no live infrastructure is queried.</span>
+    </div>
+    <div class="live-refresh-control">
+      <div>
+        <span>Last refresh</span>
+        <strong data-last-refresh>--:--:--</strong>
+      </div>
+      <button type="button" class="refresh-button" data-refresh-button aria-label="Refresh simulated cluster state">
+        <span class="refresh-icon" aria-hidden="true">↻</span>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="infra-kpis infra-kpis-live">
     <div>
-      <span class="infra-live"><i></i> Production-derived architecture</span>
-      <h3>Research Cluster · Public-safe View</h3>
-      <p>Sanitized recreation of the actual private dashboard used for day-to-day experiments.</p>
+      <span>GPU scale</span>
+      <strong><b data-total-gpus>29</b> cards</strong>
+      <small>5 example nodes · 24 / 48 GB tiers</small>
     </div>
-    <div class="infra-top-stats">
-      <div><strong>5</strong><span>nodes</span></div>
-      <div><strong>29</strong><span>GPUs</span></div>
-      <div><strong>24 / 48 GB</strong><span>VRAM tiers</span></div>
+    <div>
+      <span>Total VRAM usage</span>
+      <strong data-vram-summary>56.9%</strong>
+      <div class="kpi-meter"><i data-vram-meter style="width:56.9%"></i></div>
+    </div>
+    <div>
+      <span>Card status</span>
+      <strong><b class="status-busy" data-busy-count>20</b> busy · <b class="status-owned" data-owned-count>2</b> managed · <b class="status-idle" data-idle-count>7</b> ready</strong>
+      <small>Simulated aggregate state</small>
+    </div>
+    <div>
+      <span>Schedulable now</span>
+      <strong><b data-sched-count>8</b> cards</strong>
+      <small>Eligibility recomputed on refresh</small>
     </div>
   </div>
 
-  <div class="infra-kpis">
-    <div><span>Routing policy</span><strong>Training → 48 GB</strong><small>Inference → 24 GB preferred</small></div>
-    <div><span>Eligibility</span><strong>VRAM + exclusivity</strong><small>Reject unsafe / occupied targets</small></div>
-    <div><span>Ownership</span><strong>PID identity checks</strong><small>UID · boot ID · start ticks</small></div>
-    <div><span>Completion</span><strong>Status + QC</strong><small>Exit code alone is insufficient</small></div>
+  <div class="node-filter-row">
+    <div class="node-filter-group">
+      <button type="button" class="node-filter is-active" data-node-filter="all">All nodes</button>
+      {nodes.map((node, index) => <button type="button" class="node-filter" data-node-filter={String(index)}>{node.name}</button>)}
+    </div>
+    <span class="live-cycle-note" data-cycle-note>Auto-refresh in 5s</span>
   </div>
 
-  <div class="infra-node-grid">
-    {[
-      {name:'NODE A',gpus:[72,18,0,91]},
-      {name:'NODE B',gpus:[96,63,87,22]},
-      {name:'NODE C',gpus:[58,76,94,89]},
-      {name:'NODE D',gpus:[4,0,0,11]},
-      {name:'NODE E',gpus:[71,0,66,3]}
-    ].map((node, ni) => (
-      <div class="infra-node">
-        <div class="infra-node-head"><strong>{node.name}</strong><span>{ni < 3 ? '48 GB tier' : '24 GB tier'}</span></div>
-        <div class="infra-gpus">
+  <div class="live-node-list">
+    {nodes.map((node, ni) => (
+      <section class="live-node-card" data-node-card data-node-index={String(ni)}>
+        <div class="live-node-head">
+          <div>
+            <span class="node-online-dot"></span>
+            <strong>{node.name}</strong>
+            <small>{node.tier}</small>
+          </div>
+          <span class="node-vram-summary" data-node-summary>{node.gpus.reduce((a,b)=>a+b,0)}% aggregate load</span>
+        </div>
+
+        <div class="live-gpu-grid">
           {node.gpus.map((used, gi) => (
-            <div class="infra-gpu">
-              <div class="infra-gpu-head"><span>GPU {gi}</span><b class={used > 85 ? 'hot' : used === 0 ? 'idle' : ''}>{used === 0 ? 'READY' : `${used}%`}</b></div>
-              <div class="infra-meter"><i style={`width:${used}%`}></i></div>
-              <small>{used === 0 ? 'schedulable' : used > 85 ? 'busy / protected' : 'managed workload'}</small>
-            </div>
+            <button
+              type="button"
+              class="live-gpu-card"
+              data-gpu-card
+              data-node={String(ni)}
+              data-gpu={String(gi)}
+              data-base={String(used)}
+              aria-label={`${node.name} GPU ${gi}`}
+            >
+              <div class="live-gpu-head">
+                <span>GPU {gi}</span>
+                <b data-gpu-state class={used === 0 ? 'idle' : used > 85 ? 'busy' : used > 55 ? 'managed' : 'available'}>
+                  {used === 0 ? 'READY' : used > 85 ? 'BUSY' : used > 55 ? 'MANAGED' : 'AVAILABLE'}
+                </b>
+              </div>
+              <div class="gpu-util-line">
+                <span>Utilization</span>
+                <strong data-gpu-util>{used}%</strong>
+              </div>
+              <div class="live-meter"><i data-gpu-meter style={`width:${used}%`}></i></div>
+              <div class="gpu-footer">
+                <small data-gpu-memory>{Math.max(0.4, used * (node.tier.startsWith('48') ? 0.48 : 0.24)).toFixed(1)} / {node.tier.startsWith('48') ? '48.0' : '24.0'} GB</small>
+                <span data-gpu-owner>{used === 0 ? 'schedulable' : used > 85 ? 'protected workload' : used > 55 ? 'managed task' : 'light workload'}</span>
+              </div>
+            </button>
           ))}
         </div>
-      </div>
+      </section>
     ))}
   </div>
 
-  <div class="infra-lifecycle-wrap">
-    <div class="eyebrow">Reservation lifecycle</div>
-    <div class="infra-lifecycle">
-      {clusterStates.map((state, index) => (
-        <>
-          <span class={state === 'TASK_OWNED' ? 'active' : ''}>{state}</span>
-          {index < clusterStates.length - 1 && <b>→</b>}
-        </>
-      ))}
+  <div class="live-detail-panel" data-live-detail>
+    <div>
+      <span class="demo-label">Selected simulated card</span>
+      <strong data-detail-title>Node B · GPU 4</strong>
+    </div>
+    <div>
+      <span class="demo-label">Current interpretation</span>
+      <p data-detail-copy>High utilization and low free headroom: this card remains protected from new scheduling decisions.</p>
+    </div>
+    <div class="live-detail-flags">
+      <span data-detail-tier>48 GB tier</span>
+      <span data-detail-status>BUSY</span>
+      <span data-detail-eligibility>not schedulable</span>
     </div>
   </div>
 
-  <div class="infra-proof-row">
-    <div><strong>Dashboard / observer</strong><span>Shared state is the scheduling source of truth.</span></div>
-    <div><strong>Dispatcher</strong><span>Routes by VRAM tier, free memory and reservation state.</span></div>
-    <div><strong>Worker / monitor</strong><span>Tracks task identity, PID hierarchy, status and completion QC.</span></div>
-  </div>
+  <p class="privacy-note">Public-safe simulation only. Values drift over time to demonstrate refresh behavior; real hostnames, usernames, PIDs, IPs, paths, credentials and live telemetry are never exposed.</p>
 
-  <p class="privacy-note">This is a public-safe recreation, not live telemetry. Real hostnames, usernames, PIDs, IPs, paths and credentials are intentionally excluded.</p>
+  <script type="application/json" data-live-seed set:html={JSON.stringify(nodes)}></script>
 </div>
+
+<script is:inline>
+  (() => {
+    document.querySelectorAll('[data-live-cluster]').forEach((root) => {
+      if (root.dataset.ready === '1') return;
+      root.dataset.ready = '1';
+
+      const seedEl = root.querySelector('[data-live-seed]');
+      let seed = [];
+      try { seed = JSON.parse(seedEl?.textContent || '[]'); } catch (_) { return; }
+
+      const cards = [...root.querySelectorAll('[data-gpu-card]')];
+      const nodeCards = [...root.querySelectorAll('[data-node-card]')];
+      const filters = [...root.querySelectorAll('[data-node-filter]')];
+      const refreshButton = root.querySelector('[data-refresh-button]');
+      const refreshIcon = root.querySelector('.refresh-icon');
+      const lastRefresh = root.querySelector('[data-last-refresh]');
+      const cycleNote = root.querySelector('[data-cycle-note]');
+      const busyCount = root.querySelector('[data-busy-count]');
+      const ownedCount = root.querySelector('[data-owned-count]');
+      const idleCount = root.querySelector('[data-idle-count]');
+      const schedCount = root.querySelector('[data-sched-count]');
+      const vramSummary = root.querySelector('[data-vram-summary]');
+      const vramMeter = root.querySelector('[data-vram-meter]');
+      const detailTitle = root.querySelector('[data-detail-title]');
+      const detailCopy = root.querySelector('[data-detail-copy]');
+      const detailTier = root.querySelector('[data-detail-tier]');
+      const detailStatus = root.querySelector('[data-detail-status]');
+      const detailEligibility = root.querySelector('[data-detail-eligibility]');
+
+      let tick = 0;
+      let secondsLeft = 5;
+      let selectedCard = cards.find((card) => card.dataset.node === '1' && card.dataset.gpu === '4') || cards[0];
+
+      const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+      const simulatedValue = (base, nodeIndex, gpuIndex, tickValue) => {
+        if (base === 0) {
+          const wake = ((tickValue + nodeIndex * 2 + gpuIndex * 3) % 11 === 0);
+          return wake ? 8 + ((nodeIndex + gpuIndex + tickValue) % 18) : 0;
+        }
+        const wave = Math.sin((tickValue + nodeIndex * 1.7 + gpuIndex * .83) * .72) * 7;
+        const drift = ((tickValue + gpuIndex * 2 + nodeIndex) % 5) - 2;
+        return Math.round(clamp(base + wave + drift, 0, 100));
+      };
+
+      const classify = (util) => {
+        if (util === 0) return { label:'READY', cls:'idle', owner:'schedulable', sched:true };
+        if (util >= 86) return { label:'BUSY', cls:'busy', owner:'protected workload', sched:false };
+        if (util >= 58) return { label:'MANAGED', cls:'managed', owner:'managed task', sched:false };
+        return { label:'AVAILABLE', cls:'available', owner:'light workload', sched:util < 25 };
+      };
+
+      const explain = (util, tier) => {
+        if (util === 0) return 'No simulated compute activity is present. This card is shown as immediately schedulable.';
+        if (util >= 86) return 'High utilization and low free headroom: this card remains protected from new scheduling decisions.';
+        if (util >= 58) return 'A managed workload is active. The dashboard keeps the task observable but does not treat the card as idle capacity.';
+        if (util < 25) return 'Only a light workload is present. The card may remain eligible depending on task class, free VRAM and reservation checks.';
+        return 'Moderate activity is present. The card is visible to the scheduler, but additional eligibility checks are still required.';
+      };
+
+      const inspect = (card) => {
+        selectedCard = card;
+        cards.forEach((c) => c.classList.toggle('is-selected', c === card));
+        const nodeIndex = Number(card.dataset.node || 0);
+        const gpuIndex = Number(card.dataset.gpu || 0);
+        const util = Number(card.dataset.current || card.dataset.base || 0);
+        const tier = seed[nodeIndex]?.tier || 'unknown tier';
+        const state = classify(util);
+
+        detailTitle.textContent = `${seed[nodeIndex]?.name || 'Node'} · GPU ${gpuIndex}`;
+        detailCopy.textContent = explain(util, tier);
+        detailTier.textContent = tier;
+        detailStatus.textContent = state.label;
+        detailEligibility.textContent = state.sched ? 'potentially schedulable' : 'not schedulable';
+      };
+
+      cards.forEach((card) => {
+        ['mouseenter','focus','click'].forEach((eventName) => card.addEventListener(eventName, () => inspect(card)));
+      });
+
+      const render = (manual = false) => {
+        tick += 1;
+        if (manual && refreshIcon) {
+          refreshIcon.classList.remove('spin-once');
+          void refreshIcon.offsetWidth;
+          refreshIcon.classList.add('spin-once');
+        }
+
+        let busy = 0, managed = 0, idle = 0, sched = 0, totalUtil = 0;
+
+        cards.forEach((card) => {
+          const nodeIndex = Number(card.dataset.node || 0);
+          const gpuIndex = Number(card.dataset.gpu || 0);
+          const base = Number(card.dataset.base || 0);
+          const util = simulatedValue(base, nodeIndex, gpuIndex, tick);
+          const state = classify(util);
+          card.dataset.current = String(util);
+
+          const stateEl = card.querySelector('[data-gpu-state]');
+          const utilEl = card.querySelector('[data-gpu-util]');
+          const meter = card.querySelector('[data-gpu-meter]');
+          const memoryEl = card.querySelector('[data-gpu-memory]');
+          const ownerEl = card.querySelector('[data-gpu-owner]');
+          const tier = seed[nodeIndex]?.tier || '24 GB tier';
+          const totalGb = tier.startsWith('48') ? 48 : 24;
+          const usedGb = Math.max(util === 0 ? 0 : .4, util / 100 * totalGb);
+
+          stateEl.textContent = state.label;
+          stateEl.className = state.cls;
+          utilEl.textContent = `${util}%`;
+          meter.style.width = `${util}%`;
+          memoryEl.textContent = `${usedGb.toFixed(1)} / ${totalGb.toFixed(1)} GB`;
+          ownerEl.textContent = state.owner;
+
+          if (state.label === 'BUSY') busy++;
+          else if (state.label === 'MANAGED') managed++;
+          else if (state.label === 'READY') idle++;
+          if (state.sched) sched++;
+          totalUtil += util;
+        });
+
+        nodeCards.forEach((nodeCard) => {
+          const nodeIndex = Number(nodeCard.dataset.nodeIndex || 0);
+          const nodeGpuCards = cards.filter((card) => Number(card.dataset.node || 0) === nodeIndex);
+          const avg = nodeGpuCards.length ? Math.round(nodeGpuCards.reduce((sum, card) => sum + Number(card.dataset.current || 0), 0) / nodeGpuCards.length) : 0;
+          const summary = nodeCard.querySelector('[data-node-summary]');
+          if (summary) summary.textContent = `${avg}% average utilization`;
+        });
+
+        const average = Math.round((totalUtil / cards.length) * 10) / 10;
+        busyCount.textContent = String(busy);
+        ownedCount.textContent = String(managed);
+        idleCount.textContent = String(idle);
+        schedCount.textContent = String(sched);
+        vramSummary.textContent = `${average.toFixed(1)}%`;
+        vramMeter.style.width = `${average}%`;
+
+        const now = new Date();
+        lastRefresh.textContent = now.toLocaleTimeString([], { hour12:false });
+        secondsLeft = 5;
+        inspect(selectedCard);
+      };
+
+      filters.forEach((button) => {
+        const activate = () => {
+          filters.forEach((b) => b.classList.toggle('is-active', b === button));
+          const value = button.dataset.nodeFilter;
+          nodeCards.forEach((nodeCard) => {
+            nodeCard.hidden = value !== 'all' && nodeCard.dataset.nodeIndex !== value;
+          });
+        };
+        ['click','focus'].forEach((evt) => button.addEventListener(evt, activate));
+      });
+
+      refreshButton?.addEventListener('click', () => render(true));
+
+      render(false);
+      window.setInterval(() => render(false), 5000);
+      window.setInterval(() => {
+        secondsLeft = secondsLeft <= 1 ? 5 : secondsLeft - 1;
+        if (cycleNote) cycleNote.textContent = `Auto-refresh in ${secondsLeft}s`;
+      }, 1000);
+    });
+  })();
+</script>
