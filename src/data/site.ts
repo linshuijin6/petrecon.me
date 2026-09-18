@@ -95,11 +95,61 @@ export const skills = [
 ];
 
 export const workflow = [
-  { name: 'Gemini', role: 'Reconnaissance', note: 'Broad repository / document traversal', kind: 'model', output: 'Evidence-grounded recon report' },
-  { name: 're-handoff', role: 'Verification gate', note: 'Verify critical claims against current repository', kind: 'gate', output: 'Verified plan + drift report' },
-  { name: 'Codex', role: 'Implementation', note: 'Repository-level code changes', kind: 'model', output: 'Minimal implementation' },
-  { name: 'Claude', role: 'Refinement', note: 'Fine-grained debugging and local semantic adjustment', kind: 'model', output: 'Targeted corrections' },
-  { name: 'Human QC + Git', role: 'Scientific validation', note: 'Stage-wise review, tests, checkpoints and traceability', kind: 'human', output: 'Auditable experiment state' }
+  {
+    name: 'Gemini',
+    role: 'Reconnaissance',
+    note: 'Broad repository / document traversal',
+    kind: 'model',
+    output: 'Evidence-grounded recon report',
+    detailTitle: 'Explore broadly before implementation',
+    detail: 'Gemini spends the large context budget on repository traversal, documentation, experiment history and cross-file dependency tracing. It does not own the implementation decision.',
+    artifact: 'Repository Reconnaissance Report',
+    signals: ['Repository map', 'Execution / data flow', 'Scientific invariants', 'CONFIRMED / INFERRED / UNRESOLVED']
+  },
+  {
+    name: 're-handoff',
+    role: 'Verification gate',
+    note: 'Verify critical claims against current repository',
+    kind: 'gate',
+    output: 'Verified plan + drift report',
+    detailTitle: 'Treat the handoff as evidence, not authority',
+    detail: 'Critical claims from reconnaissance are checked against the live repository. If the report is stale or disagrees with code/config, repository ground truth wins and the discrepancy is surfaced before edits.',
+    artifact: 'Verified implementation plan',
+    signals: ['Targeted repository verification', 'Report-drift detection', 'Baseline preservation', 'Stop on unresolved scientific ambiguity']
+  },
+  {
+    name: 'Codex',
+    role: 'Implementation',
+    note: 'Repository-level code changes',
+    kind: 'model',
+    output: 'Minimal implementation',
+    detailTitle: 'Implement against the verified repository state',
+    detail: 'Codex handles the main cross-file implementation after the task, invariants and affected paths have been verified. Changes stay local to the requested scientific or engineering intent.',
+    artifact: 'Repository patch / implementation',
+    signals: ['Cross-file changes', 'Reuse local conventions', 'Minimal scope', 'No unrelated refactor']
+  },
+  {
+    name: 'Claude',
+    role: 'Refinement',
+    note: 'Fine-grained debugging and local semantic adjustment',
+    kind: 'model',
+    output: 'Targeted corrections',
+    detailTitle: 'Use fine-grained reasoning where precision matters',
+    detail: 'Claude is used for localized debugging, semantic edge cases and requirement-level refinements after the main implementation exists, rather than re-owning the entire repository change.',
+    artifact: 'Targeted refinement',
+    signals: ['Bug localization', 'Local semantic checks', 'Small corrective edits', 'Requirement-level refinement']
+  },
+  {
+    name: 'Human QC + Git',
+    role: 'Scientific validation',
+    note: 'Stage-wise review, tests, checkpoints and traceability',
+    kind: 'human',
+    output: 'Auditable experiment state',
+    detailTitle: 'Keep scientific decisions human-auditable',
+    detail: 'Generated code is not treated as scientifically correct just because it runs. Data split, checkpoint, inference, OOF aggregation and statistics are reviewed stage by stage, with Git preserving the experiment history.',
+    artifact: 'Validated + traceable experiment state',
+    signals: ['Human-in-the-loop QC', 'Targeted tests', 'Git traceability', 'Implementation ≠ scientific result']
+  }
 ];
 
 export const clusterStates = ['HOLDING', 'PREWARMING', 'HANDOFF_OUT', 'TASK_OWNED', 'HANDOFF_BACK', 'HOLDING'];
