@@ -1,0 +1,261 @@
+---
+const { skill } = Astro.props;
+---
+
+{skill.slug === 'repository-reconnaissance' && (
+  <section class="skill-demo skill-demo-recon" data-skill-demo="recon">
+    <div class="skill-demo-toolbar" role="tablist" aria-label="Evidence confidence state">
+      <button type="button" class="demo-choice is-active" data-choice="confirmed" role="tab" aria-selected="true">CONFIRMED</button>
+      <button type="button" class="demo-choice" data-choice="inferred" role="tab" aria-selected="false">INFERRED</button>
+      <button type="button" class="demo-choice" data-choice="unresolved" role="tab" aria-selected="false">UNRESOLVED</button>
+    </div>
+
+    <div class="recon-browser">
+      <div class="recon-tree">
+        <div class="demo-label">Repository trace</div>
+        <span class="tree-item active">train.py</span>
+        <span class="tree-item">configs/experiment.yaml</span>
+        <span class="tree-item">dataset.py</span>
+        <span class="tree-item">evaluate.py</span>
+      </div>
+      <div class="recon-evidence" data-demo-panel>
+        <div class="evidence-status confirmed" data-demo-status>CONFIRMED</div>
+        <h3 data-demo-title>Split definition is directly verified</h3>
+        <p data-demo-copy>The active training path reads the split configuration from the current experiment config, and the same subject IDs are propagated into the dataset constructor.</p>
+        <div class="evidence-meta">
+          <span data-demo-source>Evidence: config key + call path</span>
+          <span data-demo-action>Action: safe to use as an invariant</span>
+        </div>
+      </div>
+    </div>
+    <p class="demo-hint">Hover, focus, or click a confidence state to see how the reconnaissance report separates evidence from inference.</p>
+  </section>
+)}
+
+{skill.slug === 're-handoff' && (
+  <section class="skill-demo skill-demo-handoff" data-skill-demo="handoff">
+    <div class="skill-demo-toolbar" role="tablist" aria-label="Verification scenario">
+      <button type="button" class="demo-choice is-active" data-choice="match" role="tab" aria-selected="true">Report matches repository</button>
+      <button type="button" class="demo-choice" data-choice="drift" role="tab" aria-selected="false">Report drift detected</button>
+      <button type="button" class="demo-choice" data-choice="ambiguity" role="tab" aria-selected="false">Scientific ambiguity</button>
+    </div>
+
+    <div class="handoff-stage">
+      <div class="handoff-source">
+        <span class="demo-label">Recon report</span>
+        <strong data-report-claim>“Evaluation uses the canonical OOF split.”</strong>
+      </div>
+      <div class="handoff-gate" data-gate-state="verified">
+        <span>VERIFY</span>
+        <b data-gate-result>VERIFIED</b>
+      </div>
+      <div class="handoff-source repository">
+        <span class="demo-label">Current repository</span>
+        <strong data-repo-claim>Config + execution path agree.</strong>
+      </div>
+    </div>
+
+    <div class="handoff-outcome" data-demo-panel>
+      <span class="outcome-badge verified" data-outcome-badge>Proceed</span>
+      <div>
+        <h3 data-demo-title>Use the report as verified navigation evidence</h3>
+        <p data-demo-copy>The critical claim agrees with the live repository, so planning can proceed while preserving the confirmed experiment definition.</p>
+      </div>
+    </div>
+    <p class="demo-hint">The gate changes behavior before implementation: verify, surface drift, or stop when a scientific decision cannot be resolved safely.</p>
+  </section>
+)}
+
+{skill.slug === 'research-dev' && (
+  <section class="skill-demo skill-demo-agent" data-skill-demo="research-dev">
+    <div class="agent-console">
+      <div class="agent-console-head">
+        <span class="console-dot"></span>
+        <strong>research-dev permission / intent guard</strong>
+      </div>
+      <div class="agent-actions" role="list">
+        <button type="button" class="agent-action is-active" data-choice="inspect">
+          <span>01</span><strong>Inspect code / git diff</strong><small>Read-only repository understanding</small>
+        </button>
+        <button type="button" class="agent-action" data-choice="implement">
+          <span>02</span><strong>Implement scoped change</strong><small>User-approved scientific intent</small>
+        </button>
+        <button type="button" class="agent-action" data-choice="baseline">
+          <span>03</span><strong>Change canonical split</strong><small>Experiment-definition change</small>
+        </button>
+        <button type="button" class="agent-action" data-choice="dangerous">
+          <span>04</span><strong>git reset --hard</strong><small>Destructive shell command</small>
+        </button>
+      </div>
+      <div class="agent-decision" data-demo-panel>
+        <div class="decision-code allow" data-decision-code>ALLOW</div>
+        <div>
+          <h3 data-demo-title>Read-only inspection is allowed</h3>
+          <p data-demo-copy>The agent can inspect repository state and gather evidence without asking for destructive or experiment-defining permissions.</p>
+          <div class="decision-rule" data-decision-rule>Rule: understand current code/config before editing.</div>
+        </div>
+      </div>
+    </div>
+    <p class="demo-hint">Hover or focus an action to see how engineering permissions and scientific guardrails are separated.</p>
+  </section>
+)}
+
+{skill.slug === 'cluster-task-orchestrator' && (
+  <section class="skill-demo skill-demo-cluster" data-skill-demo="cluster">
+    <div class="cluster-demo-top">
+      <div class="skill-demo-toolbar" role="tablist" aria-label="Task class">
+        <button type="button" class="demo-choice is-active" data-choice="training" role="tab" aria-selected="true">Training task</button>
+        <button type="button" class="demo-choice" data-choice="inference" role="tab" aria-selected="false">Inference / precompute</button>
+      </div>
+      <div class="cluster-route" data-cluster-route>
+        <span>Route</span>
+        <strong>48 GB tier · free VRAM ≥ 18 GB</strong>
+      </div>
+    </div>
+
+    <div class="cluster-gpu-demo">
+      <div class="gpu-tier eligible" data-gpu-tier="48">
+        <span>48 GB tier</span><strong>A6000-class</strong><small data-gpu-48>ELIGIBLE · training-preferred</small>
+      </div>
+      <div class="gpu-tier ineligible" data-gpu-tier="24">
+        <span>24 GB tier</span><strong>3090 / 4090-class</strong><small data-gpu-24>SKIP · preserve for lighter tasks</small>
+      </div>
+      <div class="gpu-tier protected">
+        <span>Busy / protected</span><strong>Existing workload</strong><small>REJECT · strict exclusivity</small>
+      </div>
+    </div>
+
+    <div class="cluster-lifecycle-demo">
+      <div class="demo-label">Reservation lifecycle · hover a state</div>
+      <div class="lifecycle-row">
+        {['HOLDING','PREWARMING','HANDOFF_OUT','TASK_OWNED','HANDOFF_BACK'].map((state, index) => (
+          <>
+            <button type="button" class={`lifecycle-state ${index === 0 ? 'is-active' : ''}`} data-life={state}>{state}</button>
+            {index < 4 && <span>→</span>}
+          </>
+        ))}
+      </div>
+      <div class="lifecycle-detail" data-life-detail>
+        <strong data-life-title>HOLDING</strong>
+        <span data-life-copy>Reservation controller owns the prepared GPU state and can accept an authorized task handoff.</span>
+      </div>
+    </div>
+    <p class="demo-hint">This is a public-safe simulation of routing and reservation semantics; it does not expose or query the live cluster.</p>
+  </section>
+)}
+
+<script is:inline>
+  (() => {
+    const setSelected = (buttons, active) => {
+      buttons.forEach((button) => {
+        const selected = button === active;
+        button.classList.toggle('is-active', selected);
+        if (button.hasAttribute('aria-selected')) button.setAttribute('aria-selected', selected ? 'true' : 'false');
+      });
+    };
+
+    document.querySelectorAll('[data-skill-demo="recon"]').forEach((root) => {
+      if (root.dataset.ready) return; root.dataset.ready = '1';
+      const buttons = [...root.querySelectorAll('[data-choice]')];
+      const status = root.querySelector('[data-demo-status]');
+      const title = root.querySelector('[data-demo-title]');
+      const copy = root.querySelector('[data-demo-copy]');
+      const source = root.querySelector('[data-demo-source]');
+      const action = root.querySelector('[data-demo-action]');
+      const data = {
+        confirmed: {
+          title:'Split definition is directly verified',
+          copy:'The active training path reads the split configuration from the current experiment config, and the same subject IDs are propagated into the dataset constructor.',
+          source:'Evidence: config key + call path',
+          action:'Action: safe to use as an invariant'
+        },
+        inferred: {
+          title:'Behavior is strongly suggested, but not explicit',
+          copy:'A nearby historical script follows the same naming and metric convention, but the current entry point does not directly prove that both experiments are scientifically identical.',
+          source:'Evidence: parallel implementation + naming',
+          action:'Action: flag for downstream verification'
+        },
+        unresolved: {
+          title:'The repository does not establish the answer',
+          copy:'No current config, code path, or documentation reliably identifies which historical checkpoint should be treated as canonical for this specific experiment.',
+          source:'Evidence: insufficient in current repository',
+          action:'Action: stop inference and report the missing evidence'
+        }
+      };
+      const render = (button) => {
+        const item = data[button.dataset.choice]; if (!item) return;
+        setSelected(buttons, button);
+        status.textContent = button.dataset.choice.toUpperCase();
+        status.className = 'evidence-status ' + button.dataset.choice;
+        title.textContent = item.title; copy.textContent = item.copy; source.textContent = item.source; action.textContent = item.action;
+      };
+      buttons.forEach((button) => ['mouseenter','focus','click'].forEach(evt => button.addEventListener(evt, () => render(button))));
+    });
+
+    document.querySelectorAll('[data-skill-demo="handoff"]').forEach((root) => {
+      if (root.dataset.ready) return; root.dataset.ready = '1';
+      const buttons = [...root.querySelectorAll('[data-choice]')];
+      const gate = root.querySelector('.handoff-gate');
+      const gateResult = root.querySelector('[data-gate-result]');
+      const report = root.querySelector('[data-report-claim]');
+      const repo = root.querySelector('[data-repo-claim]');
+      const badge = root.querySelector('[data-outcome-badge]');
+      const title = root.querySelector('[data-demo-title]');
+      const copy = root.querySelector('[data-demo-copy]');
+      const data = {
+        match:{state:'verified',gate:'VERIFIED',report:'“Evaluation uses the canonical OOF split.”',repo:'Config + execution path agree.',badge:'Proceed',title:'Use the report as verified navigation evidence',copy:'The critical claim agrees with the live repository, so planning can proceed while preserving the confirmed experiment definition.'},
+        drift:{state:'drift',gate:'DRIFT',report:'“Metric is computed per scan.”',repo:'Current evaluator aggregates per subject.',badge:'Re-plan',title:'Trust the current repository, not the stale report',copy:'The discrepancy is surfaced explicitly. The implementation plan is rebuilt from repository ground truth instead of silently preserving stale reconnaissance.'},
+        ambiguity:{state:'stop',gate:'STOP',report:'“Use checkpoint A as canonical.”',repo:'Repository contains A and B with no authoritative designation.',badge:'Stop',title:'Do not resolve a scientific ambiguity by convenience',copy:'Implementation pauses at the affected decision because choosing a checkpoint would redefine the experiment without sufficient evidence.'}
+      };
+      const render = (button) => {
+        const item=data[button.dataset.choice]; if(!item)return; setSelected(buttons,button);
+        gate.dataset.gateState=item.state; gateResult.textContent=item.gate; report.textContent=item.report; repo.textContent=item.repo;
+        badge.textContent=item.badge; badge.className='outcome-badge '+item.state; title.textContent=item.title; copy.textContent=item.copy;
+      };
+      buttons.forEach((button)=>['mouseenter','focus','click'].forEach(evt=>button.addEventListener(evt,()=>render(button))));
+    });
+
+    document.querySelectorAll('[data-skill-demo="research-dev"]').forEach((root) => {
+      if (root.dataset.ready) return; root.dataset.ready='1';
+      const buttons=[...root.querySelectorAll('[data-choice]')];
+      const code=root.querySelector('[data-decision-code]'); const title=root.querySelector('[data-demo-title]');
+      const copy=root.querySelector('[data-demo-copy]'); const rule=root.querySelector('[data-decision-rule]');
+      const data={
+        inspect:{decision:'ALLOW',class:'allow',title:'Read-only inspection is allowed',copy:'The agent can inspect repository state and gather evidence without asking for destructive or experiment-defining permissions.',rule:'Rule: understand current code/config before editing.'},
+        implement:{decision:'ALLOW',class:'allow',title:'Scoped implementation is allowed',copy:'Once intent is user-approved and repository evidence is verified, the agent can make the minimal local changes needed for the task.',rule:'Rule: preserve scientific baselines and local conventions.'},
+        baseline:{decision:'REVIEW',class:'review',title:'Experiment-definition changes require explicit authority',copy:'Changing a canonical split, checkpoint, preprocessing rule or metric can change the scientific question, so it is not treated as an ordinary implementation detail.',rule:'Rule: report material scientific ambiguity instead of silently deciding.'},
+        dangerous:{decision:'DENY',class:'deny',title:'Destructive shell operations are denied',copy:'Commands such as git reset --hard, force pushes, recursive deletion and destructive system operations are explicitly blocked by the agent policy.',rule:'Rule: engineering convenience never overrides repository safety.'}
+      };
+      const render=(button)=>{const item=data[button.dataset.choice];if(!item)return;setSelected(buttons,button);code.textContent=item.decision;code.className='decision-code '+item.class;title.textContent=item.title;copy.textContent=item.copy;rule.textContent=item.rule;};
+      buttons.forEach((button)=>['mouseenter','focus','click'].forEach(evt=>button.addEventListener(evt,()=>render(button))));
+    });
+
+    document.querySelectorAll('[data-skill-demo="cluster"]').forEach((root) => {
+      if (root.dataset.ready) return; root.dataset.ready='1';
+      const taskButtons=[...root.querySelectorAll('.skill-demo-toolbar [data-choice]')];
+      const route=root.querySelector('[data-cluster-route] strong'); const g48=root.querySelector('[data-gpu-48]'); const g24=root.querySelector('[data-gpu-24]');
+      const tier48=root.querySelector('[data-gpu-tier="48"]'); const tier24=root.querySelector('[data-gpu-tier="24"]');
+      const renderTask=(button)=>{
+        setSelected(taskButtons,button);
+        const training=button.dataset.choice==='training';
+        route.textContent=training?'48 GB tier · free VRAM ≥ 18 GB':'24 GB tier preferred · preserve 48 GB cards';
+        g48.textContent=training?'ELIGIBLE · training-preferred':'ELIGIBLE · fallback, but avoid wasting large card';
+        g24.textContent=training?'SKIP · insufficient class for this route':'ELIGIBLE · inference-preferred';
+        tier48.classList.toggle('eligible',true); tier48.classList.toggle('secondary',!training);
+        tier24.classList.toggle('eligible',!training); tier24.classList.toggle('ineligible',training);
+      };
+      taskButtons.forEach((button)=>['mouseenter','focus','click'].forEach(evt=>button.addEventListener(evt,()=>renderTask(button))));
+
+      const lifeButtons=[...root.querySelectorAll('[data-life]')]; const lifeTitle=root.querySelector('[data-life-title]'); const lifeCopy=root.querySelector('[data-life-copy]');
+      const lifeData={
+        HOLDING:'Reservation controller owns the prepared GPU state and can accept an authorized task handoff.',
+        PREWARMING:'The task prepares CPU-side imports, config and checkpoint work before requesting GPU ownership.',
+        HANDOFF_OUT:'The current holder is identity-checked and released; the task waits for confirmed GPU process exit.',
+        TASK_OWNED:'The verified task owns the GPU while worker state, PID identity and heartbeats remain observable.',
+        HANDOFF_BACK:'After task completion, the controller restores the prepared reservation state for the next task.'
+      };
+      const renderLife=(button)=>{lifeButtons.forEach(b=>b.classList.toggle('is-active',b===button));lifeTitle.textContent=button.dataset.life;lifeCopy.textContent=lifeData[button.dataset.life]||'';};
+      lifeButtons.forEach((button)=>['mouseenter','focus','click'].forEach(evt=>button.addEventListener(evt,()=>renderLife(button))));
+    });
+  })();
+</script>
