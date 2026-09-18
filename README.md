@@ -1,5 +1,7 @@
 # petrecon.me
 
+**Current public version: v1.1 — visual evidence portfolio**
+
 Personal research and AI engineering portfolio for **Shuijin Lin (林水锦)**, Ph.D. student in Biomedical Engineering at Xi'an Jiaotong University.
 
 ## Focus
