@@ -1,7 +1,8 @@
 ---
 import { workflow } from '../data/site';
+const initial = workflow[1] ?? workflow[0];
 ---
-<div class="workflow-v11" aria-label="Multi-model AI research workflow">
+<div class="workflow-v12" data-workflow-root aria-label="Interactive multi-model AI research workflow">
   <div class="workflow-source">
     <span class="workflow-source-dot"></span>
     <div>
@@ -10,10 +11,16 @@ import { workflow } from '../data/site';
     </div>
   </div>
 
-  <div class="workflow-pipeline">
+  <div class="workflow-pipeline" role="list" aria-label="Workflow stages">
     {workflow.map((step, index) => (
       <>
-        <div class={`workflow-step ${step.kind === 'gate' ? 'workflow-step-gate' : ''} ${step.kind === 'human' ? 'workflow-step-human' : ''}`}>
+        <button
+          type="button"
+          class={`workflow-step workflow-step-interactive ${step.kind === 'gate' ? 'workflow-step-gate' : ''} ${step.kind === 'human' ? 'workflow-step-human' : ''} ${index === 1 ? 'is-active' : ''}`}
+          data-workflow-step
+          data-index={String(index)}
+          aria-pressed={index === 1 ? 'true' : 'false'}
+        >
           <div class="workflow-step-top">
             <span class="workflow-step-index">0{index + 1}</span>
             <span class="workflow-step-kind">{step.kind}</span>
@@ -22,19 +29,25 @@ import { workflow } from '../data/site';
           <em>{step.role}</em>
           <p>{step.note}</p>
           <div class="workflow-output">{step.output}</div>
-        </div>
+        </button>
         {index < workflow.length - 1 && <div class="workflow-connector" aria-hidden="true"><span>→</span></div>}
       </>
     ))}
   </div>
 
-  <div class="workflow-verification">
-    <div>
-      <span class="verification-badge">Verification gate</span>
-      <strong>Reconnaissance is evidence, not implementation authority.</strong>
+  <section class="workflow-detail" data-workflow-detail aria-live="polite">
+    <div class="workflow-detail-head">
+      <div>
+        <span class="workflow-detail-kicker" data-detail-kicker>{initial.role}</span>
+        <h3 data-detail-title>{initial.detailTitle}</h3>
+      </div>
+      <span class="workflow-detail-artifact" data-detail-artifact>{initial.artifact}</span>
     </div>
-    <p>Critical claims are checked against the live repository before Codex edits code. If the report and repository disagree, the repository wins and the discrepancy is surfaced.</p>
-  </div>
+    <p data-detail-copy>{initial.detail}</p>
+    <div class="workflow-detail-signals" data-detail-signals>
+      {initial.signals.map(signal => <span>{signal}</span>)}
+    </div>
+  </section>
 
   <div class="workflow-footnote">
     <span>Copilot → IDE assistance</span>
@@ -42,4 +55,69 @@ import { workflow } from '../data/site';
     <span>MCP → GitHub / Notion / Drive / Gmail</span>
     <span>Human-in-the-loop → scientific QC</span>
   </div>
+
+  <script type="application/json" data-workflow-json set:html={JSON.stringify(workflow)}></script>
 </div>
+
+<script is:inline>
+  (() => {
+    const roots = document.querySelectorAll('[data-workflow-root]');
+    roots.forEach((root) => {
+      if (root.dataset.ready === '1') return;
+      root.dataset.ready = '1';
+
+      const json = root.querySelector('[data-workflow-json]');
+      const steps = [...root.querySelectorAll('[data-workflow-step]')];
+      const detail = root.querySelector('[data-workflow-detail]');
+      if (!json || !detail || !steps.length) return;
+
+      let data = [];
+      try { data = JSON.parse(json.textContent || '[]'); } catch (_) { return; }
+
+      const kicker = detail.querySelector('[data-detail-kicker]');
+      const title = detail.querySelector('[data-detail-title]');
+      const artifact = detail.querySelector('[data-detail-artifact]');
+      const copy = detail.querySelector('[data-detail-copy]');
+      const signals = detail.querySelector('[data-detail-signals]');
+      let activeIndex = 1;
+
+      const render = (index) => {
+        const item = data[index];
+        if (!item || index === activeIndex && detail.dataset.rendered === '1') return;
+        activeIndex = index;
+
+        steps.forEach((step, i) => {
+          const active = i === index;
+          step.classList.toggle('is-active', active);
+          step.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+
+        detail.classList.add('is-switching');
+        window.setTimeout(() => {
+          if (kicker) kicker.textContent = item.role;
+          if (title) title.textContent = item.detailTitle;
+          if (artifact) artifact.textContent = item.artifact;
+          if (copy) copy.textContent = item.detail;
+          if (signals) {
+            signals.innerHTML = '';
+            (item.signals || []).forEach((signal) => {
+              const span = document.createElement('span');
+              span.textContent = signal;
+              signals.appendChild(span);
+            });
+          }
+          detail.dataset.rendered = '1';
+          detail.classList.remove('is-switching');
+        }, 115);
+      };
+
+      steps.forEach((step, index) => {
+        step.addEventListener('mouseenter', () => render(index));
+        step.addEventListener('focus', () => render(index));
+        step.addEventListener('click', () => render(index));
+      });
+
+      render(1);
+    });
+  })();
+</script>
