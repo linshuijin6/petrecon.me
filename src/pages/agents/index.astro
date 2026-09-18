@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionTitle from '../../components/SectionTitle.astro';
+import SkillCard from '../../components/SkillCard.astro';
+import Workflow from '../../components/Workflow.astro';
+import { skills } from '../../data/site';
+---
+<BaseLayout title="Agents & Skills · Shuijin Lin">
+  <section class="page-hero shell"><div class="eyebrow">AI Research Engineering</div><h1>Agents & Skills</h1><p>Reusable role definitions and workflows designed around research-software constraints, model strengths and scientific validation.</p></section>
+  <section class="section shell"><SectionTitle title="Multi-model workflow" intro="Broad context gathering and code modification are deliberately separated, then joined through structured handoffs." /><Workflow /></section>
+  <section class="section band"><div class="shell"><SectionTitle title="Reusable components" intro="Architecture and rationale are public; private prompts and unpublished research details are not." /><div class="grid two">{skills.map(skill => <SkillCard skill={skill} />)}</div></div></section>
+</BaseLayout>

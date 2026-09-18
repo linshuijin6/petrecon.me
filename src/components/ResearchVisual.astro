@@ -1,0 +1,35 @@
+---
+const { kind } = Astro.props;
+---
+{kind === 'mri2pet' ? (
+  <div class="research-visual research-visual-mri" aria-label="MRI to PET research pipeline">
+    <div class="rv-inputs">
+      <span>MRI</span><span>Clinical</span><span>Biomarkers</span>
+    </div>
+    <div class="rv-arrow">→</div>
+    <div class="rv-core">
+      <strong>Representation Alignment</strong>
+      <small>CLIP-style · Foundation Model · PEFT</small>
+    </div>
+    <div class="rv-arrow">→</div>
+    <div class="rv-output">
+      <strong>PET</strong>
+      <small>5-Fold · OOF · QC</small>
+    </div>
+  </div>
+) : (
+  <div class="research-visual research-visual-duss" aria-label="DuSS-PET research pipeline">
+    <div class="rv-pet low"><span>Low-dose PET</span></div>
+    <div class="rv-arrow">→</div>
+    <div class="rv-core">
+      <strong>Pseudo-Dual-Domain</strong>
+      <small>Self-supervised · Swin Transformer</small>
+    </div>
+    <div class="rv-arrow">→</div>
+    <div class="rv-pet recon"><span>Reconstruction</span></div>
+    <div class="rv-proof">
+      <b>IEEE TRPMS · 2026</b>
+      <span>First author · Open source</span>
+    </div>
+  </div>
+)}

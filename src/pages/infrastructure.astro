@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionTitle from '../components/SectionTitle.astro';
+import InfraPreview from '../components/InfraPreview.astro';
+---
+<BaseLayout title="Research Infrastructure · Shuijin Lin">
+  <section class="page-hero shell"><div class="eyebrow">Research Infrastructure</div><h1>Multi-node GPU orchestration</h1><p>A practical layer connecting Linux compute nodes, GPU availability, research tasks and PID-aware experiment tracking.</p></section>
+  <section class="section shell"><SectionTitle title="Public architecture view" intro="The visualization below uses mock values while preserving the structure of the actual workflow." /><InfraPreview /></section>
+  <section class="section band"><div class="shell grid two">
+    <article class="card"><div class="eyebrow">Capabilities</div><h3>Operational visibility</h3><ul class="detail-list compact"><li>Node and GPU status discovery</li><li>Schedulable VRAM aggregation</li><li>Training task and PID hierarchy tracking</li><li>Node-selection and scheduling assistance</li><li>HTML dashboard with live-refresh behavior in the private environment</li></ul></article>
+    <article class="card"><div class="eyebrow">Safety boundary</div><h3>Architecture public, infrastructure private</h3><p>The public portfolio never exposes real hostnames, IP addresses, SSH configuration, credentials, internal file paths, live PIDs or unpublished dataset locations.</p></article>
+  </div></section>
+</BaseLayout>

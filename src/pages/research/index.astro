@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionTitle from '../../components/SectionTitle.astro';
+import ResearchCard from '../../components/ResearchCard.astro';
+import { researchProjects } from '../../data/site';
+---
+<BaseLayout title="Research · Shuijin Lin">
+  <section class="page-hero shell"><div class="eyebrow">Research</div><h1>Biomedical AI projects</h1><p>Research questions translated into models, controlled experiments, evaluation protocols and reproducible code.</p></section>
+  <section class="section shell">
+    <SectionTitle title="Selected projects" intro="Current and published work most representative of my research process." />
+    <div class="grid two">{researchProjects.map(project => <ResearchCard project={project} />)}</div>
+  </section>
+</BaseLayout>

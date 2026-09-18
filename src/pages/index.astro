@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionTitle from '../components/SectionTitle.astro';
+import ResearchCard from '../components/ResearchCard.astro';
+import SkillCard from '../components/SkillCard.astro';
+import Workflow from '../components/Workflow.astro';
+import InfraPreview from '../components/InfraPreview.astro';
+import { profile, evidence, researchProjects, skills } from '../data/site';
+---
+<BaseLayout>
+  <section class="hero shell">
+    <div class="hero-copy">
+      <div class="eyebrow">{profile.nameZh} · {profile.name}</div>
+      <h1>Biomedical AI<br /><span>× AI Research Engineering</span></h1>
+      <p class="hero-lede">Ph.D. student working on PET/MRI, multimodal learning and AI-assisted research engineering — from scientific experiments to multi-agent workflows and research infrastructure.</p>
+      <p class="hero-meta">{profile.institution} · {profile.lab}</p>
+      <div class="hero-actions">
+        <a class="button primary" href="/research">Explore Research</a>
+        <a class="button" href="/agents">Agents & Skills</a>
+        <a class="button" href={profile.github} target="_blank" rel="noreferrer">GitHub ↗</a>
+      </div>
+    </div>
+
+    <aside class="evidence-panel" aria-label="Selected evidence">
+      <div class="signal-row"><span class="signal-dot"></span><span>Selected evidence</span></div>
+      <div class="evidence-grid">
+        {evidence.map(item => (
+          <div class="evidence-item">
+            <strong>{item.value}</strong>
+            <span>{item.label}</span>
+          </div>
+        ))}
+      </div>
+      <div class="mini-rule"></div>
+      <div class="hero-note">
+        <strong>Working principle</strong>
+        <p>Use models by capability, verify handoffs against repository ground truth, and keep a human scientific checkpoint before experiment-defining actions.</p>
+      </div>
+    </aside>
+  </section>
+
+  <section class="section shell">
+    <SectionTitle eyebrow="Featured Research" title="From scientific questions to reproducible experiments" intro="Two representative projects spanning multimodal generation and low-dose PET reconstruction, now shown as experimental systems rather than résumé bullets." />
+    <div class="grid two research-grid">{researchProjects.map(project => <ResearchCard project={project} />)}</div>
+  </section>
+
+  <section class="section band workflow-band">
+    <div class="shell">
+      <SectionTitle eyebrow="AI Research Workflow" title="Model-specialized orchestration with an explicit verification gate" intro="Reconnaissance, implementation and scientific validation are separated by role. The handoff is checked against the live repository before code is changed." />
+      <Workflow />
+    </div>
+  </section>
+
+  <section class="section shell">
+    <SectionTitle eyebrow="Agents & Skills" title="Production-grounded architecture for research software work" intro="These cards are derived from the actual Skill / Agent specifications used in replicaLT. Public pages expose architecture and guardrails, not private prompts or unpublished scientific details." />
+    <div class="grid two skill-grid">{skills.map(skill => <SkillCard skill={skill} />)}</div>
+  </section>
+
+  <section class="section band infra-band">
+    <div class="shell">
+      <SectionTitle eyebrow="Research Infrastructure" title="A public-safe recreation of my real multi-node GPU dashboard" intro="The private system tracks 5 nodes / 29 GPUs with VRAM-aware routing, reservation handoff, PID identity and completion QC. The public view below preserves the architecture while removing live identifiers." />
+      <InfraPreview />
+      <div class="section-actions"><a class="button" href="/infrastructure">Explore infrastructure →</a></div>
+    </div>
+  </section>
+
+  <section class="section shell final-cta">
+    <div>
+      <div class="eyebrow">Open research & engineering</div>
+      <h2>Public code, inspectable workflows, reproducible thinking.</h2>
+    </div>
+    <div class="hero-actions">
+      <a class="button primary" href="https://github.com/linshuijin6/DuSS-PET" target="_blank" rel="noreferrer">DuSS-PET on GitHub ↗</a>
+      <a class="button" href={`mailto:${profile.email}`}>Contact</a>
+    </div>
+  </section>
+</BaseLayout>

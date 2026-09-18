@@ -1,0 +1,67 @@
+---
+import { clusterStates } from '../data/site';
+---
+<div class="infra-dashboard" aria-label="Public-safe recreation of the private multi-node GPU dashboard">
+  <div class="infra-topbar">
+    <div>
+      <span class="infra-live"><i></i> Production-derived architecture</span>
+      <h3>Research Cluster · Public-safe View</h3>
+      <p>Sanitized recreation of the actual private dashboard used for day-to-day experiments.</p>
+    </div>
+    <div class="infra-top-stats">
+      <div><strong>5</strong><span>nodes</span></div>
+      <div><strong>29</strong><span>GPUs</span></div>
+      <div><strong>24 / 48 GB</strong><span>VRAM tiers</span></div>
+    </div>
+  </div>
+
+  <div class="infra-kpis">
+    <div><span>Routing policy</span><strong>Training → 48 GB</strong><small>Inference → 24 GB preferred</small></div>
+    <div><span>Eligibility</span><strong>VRAM + exclusivity</strong><small>Reject unsafe / occupied targets</small></div>
+    <div><span>Ownership</span><strong>PID identity checks</strong><small>UID · boot ID · start ticks</small></div>
+    <div><span>Completion</span><strong>Status + QC</strong><small>Exit code alone is insufficient</small></div>
+  </div>
+
+  <div class="infra-node-grid">
+    {[
+      {name:'NODE A',gpus:[72,18,0,91]},
+      {name:'NODE B',gpus:[96,63,87,22]},
+      {name:'NODE C',gpus:[58,76,94,89]},
+      {name:'NODE D',gpus:[4,0,0,11]},
+      {name:'NODE E',gpus:[71,0,66,3]}
+    ].map((node, ni) => (
+      <div class="infra-node">
+        <div class="infra-node-head"><strong>{node.name}</strong><span>{ni < 3 ? '48 GB tier' : '24 GB tier'}</span></div>
+        <div class="infra-gpus">
+          {node.gpus.map((used, gi) => (
+            <div class="infra-gpu">
+              <div class="infra-gpu-head"><span>GPU {gi}</span><b class={used > 85 ? 'hot' : used === 0 ? 'idle' : ''}>{used === 0 ? 'READY' : `${used}%`}</b></div>
+              <div class="infra-meter"><i style={`width:${used}%`}></i></div>
+              <small>{used === 0 ? 'schedulable' : used > 85 ? 'busy / protected' : 'managed workload'}</small>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="infra-lifecycle-wrap">
+    <div class="eyebrow">Reservation lifecycle</div>
+    <div class="infra-lifecycle">
+      {clusterStates.map((state, index) => (
+        <>
+          <span class={state === 'TASK_OWNED' ? 'active' : ''}>{state}</span>
+          {index < clusterStates.length - 1 && <b>→</b>}
+        </>
+      ))}
+    </div>
+  </div>
+
+  <div class="infra-proof-row">
+    <div><strong>Dashboard / observer</strong><span>Shared state is the scheduling source of truth.</span></div>
+    <div><strong>Dispatcher</strong><span>Routes by VRAM tier, free memory and reservation state.</span></div>
+    <div><strong>Worker / monitor</strong><span>Tracks task identity, PID hierarchy, status and completion QC.</span></div>
+  </div>
+
+  <p class="privacy-note">This is a public-safe recreation, not live telemetry. Real hostnames, usernames, PIDs, IPs, paths and credentials are intentionally excluded.</p>
+</div>

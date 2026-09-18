@@ -1,0 +1,16 @@
+---
+import SkillMiniDiagram from './SkillMiniDiagram.astro';
+const { skill } = Astro.props;
+---
+<article class="card skill-card">
+  <div class="skill-card-head">
+    <div>
+      <div class="eyebrow">{skill.type}</div>
+      <h3><code>{skill.name}</code></h3>
+    </div>
+    <span class="proof-chip">{skill.proof}</span>
+  </div>
+  <SkillMiniDiagram skill={skill} />
+  <p>{skill.summary}</p>
+  <a class="text-link" href={`/agents/${skill.slug}`}>Architecture & rationale →</a>
+</article>
