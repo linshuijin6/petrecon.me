@@ -1445,3 +1445,100 @@ body { font-size: 16.5px; }
   .sim-live-badge i { animation:none; }
   .refresh-icon.spin-once { animation:none; }
 }
+
+
+/* v1.2.3 — absolute 0–100 utilization gradient + simulated process/PID chips */
+.kpi-meter,
+.live-meter {
+  position: relative;
+  overflow: hidden;
+  background: #e7edf3;
+}
+.kpi-meter i,
+.live-meter i {
+  display: block;
+  width: 100% !important;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    #42c99a 0%,
+    #65c98c 22%,
+    #efc14a 58%,
+    #ed8a54 78%,
+    #ee637b 100%
+  );
+  clip-path: inset(0 calc(100% - var(--util, 0%)) 0 0);
+  transition: clip-path .65s cubic-bezier(.22,.8,.25,1);
+}
+/* The gradient is anchored to the full 0–100% track.
+   Utilization only clips the visible range, so low usage remains green
+   and red appears only near the high-utilization end. */
+
+.gpu-processes {
+  min-height: 25px;
+  margin-top: 9px;
+  padding-top: 8px;
+  border-top: 1px solid #edf1f5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.process-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 4px 6px;
+  border: 1px solid #dce5ee;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #66768a;
+  font-size: .51rem;
+  line-height: 1.15;
+  transition: border-color .16s ease, background .16s ease, transform .16s ease;
+}
+.process-chip b {
+  color: #3c5068;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.process-chip em {
+  color: #8795a6;
+  font-style: normal;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  white-space: nowrap;
+}
+.process-chip strong {
+  color: #b07819;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.process-chip.is-primary {
+  border-color: #69b7c6;
+  background: linear-gradient(180deg,#ecfbfd,#f7fdfe);
+}
+.process-chip.is-primary b {
+  color: #0b7f91;
+}
+.process-empty {
+  color: #9aa6b5;
+  font-size: .51rem;
+  font-style: italic;
+}
+.detail-process-list {
+  margin-top: 7px;
+  max-width: 330px;
+  color: #738397;
+  font: 650 .57rem "SFMono-Regular", Consolas, monospace;
+  line-height: 1.45;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 820px) {
+  .detail-process-list {
+    max-width: none;
+    text-align: left;
+  }
+}

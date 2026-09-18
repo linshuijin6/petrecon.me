@@ -34,7 +34,7 @@ const nodes = [
     <div>
       <span>Total VRAM usage</span>
       <strong data-vram-summary>56.9%</strong>
-      <div class="kpi-meter"><i data-vram-meter style="width:56.9%"></i></div>
+      <div class="kpi-meter"><i data-vram-meter style="--util:56.9%"></i></div>
     </div>
     <div>
       <span>Card status</span>
@@ -89,11 +89,12 @@ const nodes = [
                 <span>Utilization</span>
                 <strong data-gpu-util>{used}%</strong>
               </div>
-              <div class="live-meter"><i data-gpu-meter style={`width:${used}%`}></i></div>
+              <div class="live-meter"><i data-gpu-meter style={`--util:${used}%`}></i></div>
               <div class="gpu-footer">
                 <small data-gpu-memory>{Math.max(0.4, used * (node.tier.startsWith('48') ? 0.48 : 0.24)).toFixed(1)} / {node.tier.startsWith('48') ? '48.0' : '24.0'} GB</small>
                 <span data-gpu-owner>{used === 0 ? 'schedulable' : used > 85 ? 'protected workload' : used > 55 ? 'managed task' : 'light workload'}</span>
               </div>
+              <div class="gpu-processes" data-gpu-processes aria-label="Simulated processes"></div>
             </button>
           ))}
         </div>
@@ -110,10 +111,13 @@ const nodes = [
       <span class="demo-label">Current interpretation</span>
       <p data-detail-copy>High utilization and low free headroom: this card remains protected from new scheduling decisions.</p>
     </div>
-    <div class="live-detail-flags">
-      <span data-detail-tier>48 GB tier</span>
-      <span data-detail-status>BUSY</span>
-      <span data-detail-eligibility>not schedulable</span>
+    <div>
+      <div class="live-detail-flags">
+        <span data-detail-tier>48 GB tier</span>
+        <span data-detail-status>BUSY</span>
+        <span data-detail-eligibility>not schedulable</span>
+      </div>
+      <div class="detail-process-list" data-detail-processes>sim-worker · PID 248531 · 12.4 GB</div>
     </div>
   </div>
 
@@ -150,6 +154,7 @@ const nodes = [
       const detailTier = root.querySelector('[data-detail-tier]');
       const detailStatus = root.querySelector('[data-detail-status]');
       const detailEligibility = root.querySelector('[data-detail-eligibility]');
+      const detailProcesses = root.querySelector('[data-detail-processes]');
 
       let tick = 0;
       let secondsLeft = 5;
@@ -182,6 +187,42 @@ const nodes = [
         return 'Moderate activity is present. The card is visible to the scheduler, but additional eligibility checks are still required.';
       };
 
+      const processNames = ['sim-worker','demo-train','eval-task','holder-demo','io-worker','stage-run'];
+      const makeProcesses = (util, totalGb, nodeIndex, gpuIndex) => {
+        if (util === 0) return [];
+        const count = util >= 88 ? 2 : 1;
+        const usedGb = Math.max(.4, util / 100 * totalGb);
+        const rows = [];
+        for (let i = 0; i < count; i++) {
+          const share = count === 1 ? usedGb : usedGb * (i === 0 ? .62 : .38);
+          const pid = 220000 + nodeIndex * 11000 + gpuIndex * 1300 + i * 211 + (tick % 9) * 17;
+          const name = processNames[(nodeIndex * 3 + gpuIndex + i + tick) % processNames.length];
+          rows.push({ name, pid, gb: Math.max(.3, share).toFixed(1), primary: i === 0 && ((nodeIndex + gpuIndex) % 5 === 0) });
+        }
+        return rows;
+      };
+
+      const renderProcesses = (card, util, totalGb, nodeIndex, gpuIndex) => {
+        const box = card.querySelector('[data-gpu-processes]');
+        const processes = makeProcesses(util, totalGb, nodeIndex, gpuIndex);
+        card.dataset.processes = JSON.stringify(processes);
+        if (!box) return;
+        box.innerHTML = '';
+        if (!processes.length) {
+          const empty = document.createElement('span');
+          empty.className = 'process-empty';
+          empty.textContent = 'no simulated compute process';
+          box.appendChild(empty);
+          return;
+        }
+        processes.forEach((proc) => {
+          const chip = document.createElement('span');
+          chip.className = 'process-chip' + (proc.primary ? ' is-primary' : '');
+          chip.innerHTML = `<b>${proc.name}${proc.primary ? ' [DEMO]' : ''}</b><em>PID:${proc.pid}</em><strong>${proc.gb}G</strong>`;
+          box.appendChild(chip);
+        });
+      };
+
       const inspect = (card) => {
         selectedCard = card;
         cards.forEach((c) => c.classList.toggle('is-selected', c === card));
@@ -196,6 +237,13 @@ const nodes = [
         detailTier.textContent = tier;
         detailStatus.textContent = state.label;
         detailEligibility.textContent = state.sched ? 'potentially schedulable' : 'not schedulable';
+        if (detailProcesses) {
+          let processes = [];
+          try { processes = JSON.parse(card.dataset.processes || '[]'); } catch (_) {}
+          detailProcesses.textContent = processes.length
+            ? processes.map((p) => `${p.name} · PID ${p.pid} · ${p.gb} GB`).join('  |  ')
+            : 'No simulated compute process on this card.';
+        }
       };
 
       cards.forEach((card) => {
@@ -232,9 +280,10 @@ const nodes = [
           stateEl.textContent = state.label;
           stateEl.className = state.cls;
           utilEl.textContent = `${util}%`;
-          meter.style.width = `${util}%`;
+          meter.style.setProperty('--util', `${util}%`);
           memoryEl.textContent = `${usedGb.toFixed(1)} / ${totalGb.toFixed(1)} GB`;
           ownerEl.textContent = state.owner;
+          renderProcesses(card, util, totalGb, nodeIndex, gpuIndex);
 
           if (state.label === 'BUSY') busy++;
           else if (state.label === 'MANAGED') managed++;
@@ -257,7 +306,7 @@ const nodes = [
         idleCount.textContent = String(idle);
         schedCount.textContent = String(sched);
         vramSummary.textContent = `${average.toFixed(1)}%`;
-        vramMeter.style.width = `${average}%`;
+        vramMeter.style.setProperty('--util', `${average}%`);
 
         const now = new Date();
         lastRefresh.textContent = now.toLocaleTimeString([], { hour12:false });
