@@ -103,30 +103,70 @@ const { skill } = Astro.props;
 {skill.slug === 'cluster-task-orchestrator' && (
   <section class="skill-demo skill-demo-cluster" data-skill-demo="cluster">
     <div class="cluster-demo-top">
-      <div class="skill-demo-toolbar" role="tablist" aria-label="Task class">
-        <button type="button" class="demo-choice is-active" data-choice="training" role="tab" aria-selected="true">Training task</button>
-        <button type="button" class="demo-choice" data-choice="inference" role="tab" aria-selected="false">Inference / precompute</button>
+      <div>
+        <div class="demo-label">Task class</div>
+        <div class="skill-demo-toolbar" role="tablist" aria-label="Task class">
+          <button type="button" class="demo-choice is-active" data-choice="training" role="tab" aria-selected="true">Training</button>
+          <button type="button" class="demo-choice" data-choice="inference" role="tab" aria-selected="false">Inference / precompute</button>
+        </div>
       </div>
       <div class="cluster-route" data-cluster-route>
-        <span>Route</span>
-        <strong>48 GB tier · free VRAM ≥ 18 GB</strong>
+        <span>Dispatcher policy</span>
+        <strong data-route-title>min-vram-gb=48 · min-free-mb=18000</strong>
+        <small data-route-note>48 GB tier only · real-time free VRAM safety check</small>
       </div>
     </div>
 
-    <div class="cluster-gpu-demo">
-      <div class="gpu-tier eligible" data-gpu-tier="48">
-        <span>48 GB tier</span><strong>A6000-class</strong><small data-gpu-48>ELIGIBLE · training-preferred</small>
+    <div class="cluster-sim-summary">
+      <div>
+        <span>Dry-run selection</span>
+        <strong data-selected-node>EX-48-A · GPU 2</strong>
       </div>
-      <div class="gpu-tier ineligible" data-gpu-tier="24">
-        <span>24 GB tier</span><strong>3090 / 4090-class</strong><small data-gpu-24>SKIP · preserve for lighter tasks</small>
+      <div>
+        <span>Why selected</span>
+        <strong data-selected-reason>48 GB eligible · holder-ready · 28.9 GB free</strong>
       </div>
-      <div class="gpu-tier protected">
-        <span>Busy / protected</span><strong>Existing workload</strong><small>REJECT · strict exclusivity</small>
+      <div>
+        <span>Queue behavior</span>
+        <strong data-queue-note>Other tasks remain dynamic queue entries</strong>
       </div>
+    </div>
+
+    <div class="cluster-node-table" data-node-table>
+      <div class="cluster-node-row cluster-node-head">
+        <span>Example GPU</span><span>Tier</span><span>Free VRAM</span><span>Reservation</span><span>Decision</span>
+      </div>
+
+      <div class="cluster-node-row" data-node-id="EX-24-A" data-vram="24" data-free="20600" data-holder="1" data-protected="0">
+        <span><strong>EX-24-A · GPU 0</strong><small>example node</small></span>
+        <span>24 GB</span><span>20.6 GB</span><span class="node-reservation">HOLDING</span><span class="node-decision" data-node-decision>SKIP</span>
+      </div>
+      <div class="cluster-node-row" data-node-id="EX-48-A" data-vram="48" data-free="28900" data-holder="1" data-protected="0">
+        <span><strong>EX-48-A · GPU 2</strong><small>example node</small></span>
+        <span>48 GB</span><span>28.9 GB</span><span class="node-reservation">HOLDING</span><span class="node-decision" data-node-decision>SELECT</span>
+      </div>
+      <div class="cluster-node-row" data-node-id="EX-48-B" data-vram="48" data-free="12400" data-holder="0" data-protected="0">
+        <span><strong>EX-48-B · GPU 1</strong><small>example node</small></span>
+        <span>48 GB</span><span>12.4 GB</span><span class="node-reservation">IDLE</span><span class="node-decision" data-node-decision>REJECT</span>
+      </div>
+      <div class="cluster-node-row" data-node-id="EX-24-B" data-vram="24" data-free="23200" data-holder="0" data-protected="0">
+        <span><strong>EX-24-B · GPU 3</strong><small>example node</small></span>
+        <span>24 GB</span><span>23.2 GB</span><span class="node-reservation">IDLE</span><span class="node-decision" data-node-decision>SKIP</span>
+      </div>
+      <div class="cluster-node-row" data-node-id="EX-48-C" data-vram="48" data-free="3100" data-holder="0" data-protected="1">
+        <span><strong>EX-48-C · GPU 0</strong><small>example node</small></span>
+        <span>48 GB</span><span>3.1 GB</span><span class="node-reservation">PROTECTED</span><span class="node-decision" data-node-decision>REJECT</span>
+      </div>
+    </div>
+
+    <div class="cluster-reason-panel" data-cluster-reason>
+      <div class="demo-label">Dispatcher explanation</div>
+      <code data-dispatch-line>selected=EX-48-A reason=holder_priority,vram_48gb,free_mb_28900</code>
+      <p data-dispatch-copy>Training requires the 48 GB tier. EX-48-B is rejected because free VRAM is below 18,000 MB; EX-48-C is protected/busy. The eligible holder-backed 48 GB card is selected.</p>
     </div>
 
     <div class="cluster-lifecycle-demo">
-      <div class="demo-label">Reservation lifecycle · hover a state</div>
+      <div class="demo-label">Reservation lifecycle · hover / focus a state</div>
       <div class="lifecycle-row">
         {['HOLDING','PREWARMING','HANDOFF_OUT','TASK_OWNED','HANDOFF_BACK'].map((state, index) => (
           <>
@@ -139,8 +179,21 @@ const { skill } = Astro.props;
         <strong data-life-title>HOLDING</strong>
         <span data-life-copy>Reservation controller owns the prepared GPU state and can accept an authorized task handoff.</span>
       </div>
+      <div class="identity-check">
+        <span>Identity contract</span>
+        <strong>reservation ID + generation + UID + boot ID + PID start ticks + cmdline</strong>
+      </div>
     </div>
-    <p class="demo-hint">This is a public-safe simulation of routing and reservation semantics; it does not expose or query the live cluster.</p>
+
+    <div class="cluster-completion">
+      <div>
+        <span class="demo-label">Completion rule</span>
+        <strong>Structured status + completion_qc.json</strong>
+      </div>
+      <p>Exit code alone is not treated as scientific completion. Sharded or structured outputs must satisfy the expected output contract and QC before the task is reported as complete.</p>
+    </div>
+
+    <p class="demo-hint">Rule-driven public simulation derived from the production Skill. Example nodes are synthetic; no live cluster data is queried or exposed.</p>
   </section>
 )}
 
@@ -232,27 +285,89 @@ const { skill } = Astro.props;
 
     document.querySelectorAll('[data-skill-demo="cluster"]').forEach((root) => {
       if (root.dataset.ready) return; root.dataset.ready='1';
+
       const taskButtons=[...root.querySelectorAll('.skill-demo-toolbar [data-choice]')];
-      const route=root.querySelector('[data-cluster-route] strong'); const g48=root.querySelector('[data-gpu-48]'); const g24=root.querySelector('[data-gpu-24]');
-      const tier48=root.querySelector('[data-gpu-tier="48"]'); const tier24=root.querySelector('[data-gpu-tier="24"]');
+      const routeTitle=root.querySelector('[data-route-title]');
+      const routeNote=root.querySelector('[data-route-note]');
+      const selectedNode=root.querySelector('[data-selected-node]');
+      const selectedReason=root.querySelector('[data-selected-reason]');
+      const queueNote=root.querySelector('[data-queue-note]');
+      const dispatchLine=root.querySelector('[data-dispatch-line]');
+      const dispatchCopy=root.querySelector('[data-dispatch-copy]');
+      const rows=[...root.querySelectorAll('.cluster-node-row[data-node-id]')];
+
+      const nodes=rows.map((row)=>({
+        row,
+        id:row.dataset.nodeId,
+        vram:Number(row.dataset.vram||0),
+        free:Number(row.dataset.free||0),
+        holder:row.dataset.holder==='1',
+        protected:row.dataset.protected==='1',
+        decision:row.querySelector('[data-node-decision]')
+      }));
+
       const renderTask=(button)=>{
         setSelected(taskButtons,button);
         const training=button.dataset.choice==='training';
-        route.textContent=training?'48 GB tier · free VRAM ≥ 18 GB':'24 GB tier preferred · preserve 48 GB cards';
-        g48.textContent=training?'ELIGIBLE · training-preferred':'ELIGIBLE · fallback, but avoid wasting large card';
-        g24.textContent=training?'SKIP · insufficient class for this route':'ELIGIBLE · inference-preferred';
-        tier48.classList.toggle('eligible',true); tier48.classList.toggle('secondary',!training);
-        tier24.classList.toggle('eligible',!training); tier24.classList.toggle('ineligible',training);
+        const minVram=training?48:24;
+        const minFree=training?18000:0;
+
+        routeTitle.textContent=training?'min-vram-gb=48 · min-free-mb=18000':'min-vram-gb=24 · prefer smaller VRAM tier';
+        routeNote.textContent=training?'48 GB tier only · real-time free VRAM safety check':'24 GB cards rank ahead of 48 GB cards when equally safe';
+
+        const evaluated=nodes.map((node)=>{
+          let decision='CANDIDATE';
+          let reason='eligible';
+          if(node.protected){decision='REJECT';reason='protected_or_busy';}
+          else if(node.vram<minVram){decision='REJECT';reason=`vram_insufficient_${node.vram}gb_need_${minVram}gb`;}
+          else if(minFree && node.free<minFree){decision='REJECT';reason=`free_mb_insufficient_${node.free}mb_need_${minFree}mb`;}
+          return {...node,decision,reason};
+        });
+
+        const candidates=evaluated.filter(x=>x.decision==='CANDIDATE').sort((a,b)=>{
+          if(a.holder!==b.holder) return a.holder?-1:1;
+          if(a.vram!==b.vram) return a.vram-b.vram;
+          return b.free-a.free;
+        });
+        const selected=candidates[0]||null;
+
+        evaluated.forEach((node)=>{
+          let decision=node.decision;
+          let reason=node.reason;
+          if(selected && node.id===selected.id){decision='SELECT';reason='selected';}
+          else if(decision==='CANDIDATE'){decision='QUEUE';reason='eligible_dynamic_queue';}
+
+          node.row.dataset.decision=decision.toLowerCase();
+          node.decision.textContent=decision;
+          node.decision.title=reason;
+        });
+
+        if(selected){
+          selectedNode.textContent=`${selected.id} · ${selected.row.querySelector('strong').textContent.split('·')[1]?.trim() || 'GPU'}`;
+          selectedReason.textContent=`${selected.vram} GB eligible · ${selected.holder?'holder-ready':'idle'} · ${(selected.free/1000).toFixed(1)} GB free`;
+          queueNote.textContent='Other eligible tasks remain dynamic queue entries';
+          dispatchLine.textContent=`selected=${selected.id} reason=${selected.holder?'holder_priority,':''}vram_${selected.vram}gb,free_mb_${selected.free}`;
+        }else{
+          selectedNode.textContent='No schedulable GPU';
+          selectedReason.textContent='All candidates rejected by safety checks';
+          queueNote.textContent='Dispatcher returns explicit rejection reasons';
+          dispatchLine.textContent='selected=none';
+        }
+
+        dispatchCopy.textContent=training
+          ? 'Training requires the 48 GB tier and recommends at least 18,000 MB of real-time free VRAM. Insufficient 24 GB cards, low-free-memory cards, and protected workloads are rejected before launch.'
+          : 'Inference / precompute accepts the 24 GB tier. Holder-backed candidates rank first, then smaller VRAM cards are preferred so 48 GB training capacity is not wasted.';
       };
       taskButtons.forEach((button)=>['mouseenter','focus','click'].forEach(evt=>button.addEventListener(evt,()=>renderTask(button))));
+      renderTask(taskButtons[0]);
 
       const lifeButtons=[...root.querySelectorAll('[data-life]')]; const lifeTitle=root.querySelector('[data-life-title]'); const lifeCopy=root.querySelector('[data-life-copy]');
       const lifeData={
         HOLDING:'Reservation controller owns the prepared GPU state and can accept an authorized task handoff.',
-        PREWARMING:'The task prepares CPU-side imports, config and checkpoint work before requesting GPU ownership.',
-        HANDOFF_OUT:'The current holder is identity-checked and released; the task waits for confirmed GPU process exit.',
-        TASK_OWNED:'The verified task owns the GPU while worker state, PID identity and heartbeats remain observable.',
-        HANDOFF_BACK:'After task completion, the controller restores the prepared reservation state for the next task.'
+        PREWARMING:'CPU-side imports, config resolution and checkpoint preparation occur before GPU ownership changes.',
+        HANDOFF_OUT:'Reservation ID, generation, HOLDING state and full process identity are checked before the holder is released.',
+        TASK_OWNED:'The explicit worker/task owns the GPU while structured status, PID identity and task progress remain observable.',
+        HANDOFF_BACK:'After task exit, the controller restores the prepared holder state; worker exit does not destroy the reservation.'
       };
       const renderLife=(button)=>{lifeButtons.forEach(b=>b.classList.toggle('is-active',b===button));lifeTitle.textContent=button.dataset.life;lifeCopy.textContent=lifeData[button.dataset.life]||'';};
       lifeButtons.forEach((button)=>['mouseenter','focus','click'].forEach(evt=>button.addEventListener(evt,()=>renderLife(button))));
