@@ -1542,3 +1542,58 @@ body { font-size: 16.5px; }
     text-align: left;
   }
 }
+
+
+/* Publication metadata: authors / venue / keywords */
+.publication-meta {
+  display:grid;
+  gap:7px;
+  margin-top:12px;
+}
+.publication-meta-row {
+  display:grid;
+  grid-template-columns:84px minmax(0,1fr);
+  gap:12px;
+  align-items:start;
+}
+.publication-meta-label {
+  padding-top:2px;
+  color:#6c7d90;
+  font-size:.68rem;
+  font-weight:850;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.publication-meta-row p {
+  margin:0;
+  color:var(--muted);
+  line-height:1.55;
+}
+.publication-meta-row a {
+  color:#405d7d;
+  text-decoration:underline;
+  text-decoration-color:#c2cfdd;
+  text-underline-offset:3px;
+  text-decoration-thickness:1px;
+  transition:color .15s ease,text-decoration-color .15s ease;
+}
+.publication-meta-row a:hover,
+.publication-meta-row a:focus-visible {
+  color:var(--accent-ink);
+  text-decoration-color:#6f9ecd;
+  outline:none;
+}
+.publication-keywords {
+  display:flex;
+  flex-wrap:wrap;
+  gap:0 5px;
+}
+@media (max-width: 620px) {
+  .publication-meta-row {
+    grid-template-columns:1fr;
+    gap:2px;
+  }
+  .publication-meta-label {
+    padding-top:0;
+  }
+}
