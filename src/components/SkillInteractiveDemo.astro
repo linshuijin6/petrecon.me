@@ -137,25 +137,41 @@ const { skill } = Astro.props;
         <span>Example GPU</span><span>Tier</span><span>Free VRAM</span><span>Reservation</span><span>Decision</span>
       </div>
 
-      <div class="cluster-node-row" data-node-id="EX-24-A" data-vram="24" data-free="20600" data-holder="1" data-protected="0">
+      <button type="button" class="cluster-node-row cluster-node-button" data-node-id="EX-24-A" data-vram="24" data-free="20600" data-holder="1" data-protected="0" data-node-note="Holder-backed 24 GB card. Safe candidate for inference; intentionally excluded from 48 GB training routes.">
         <span><strong>EX-24-A · GPU 0</strong><small>example node</small></span>
         <span>24 GB</span><span>20.6 GB</span><span class="node-reservation">HOLDING</span><span class="node-decision" data-node-decision>SKIP</span>
-      </div>
-      <div class="cluster-node-row" data-node-id="EX-48-A" data-vram="48" data-free="28900" data-holder="1" data-protected="0">
+      </button>
+      <button type="button" class="cluster-node-row cluster-node-button" data-node-id="EX-48-A" data-vram="48" data-free="28900" data-holder="1" data-protected="0" data-node-note="Holder-backed 48 GB card with enough free VRAM. Preferred training candidate when identity and reservation checks pass.">
         <span><strong>EX-48-A · GPU 2</strong><small>example node</small></span>
         <span>48 GB</span><span>28.9 GB</span><span class="node-reservation">HOLDING</span><span class="node-decision" data-node-decision>SELECT</span>
-      </div>
-      <div class="cluster-node-row" data-node-id="EX-48-B" data-vram="48" data-free="12400" data-holder="0" data-protected="0">
+      </button>
+      <button type="button" class="cluster-node-row cluster-node-button" data-node-id="EX-48-B" data-vram="48" data-free="12400" data-holder="0" data-protected="0" data-node-note="48 GB hardware is suitable for training, but current free VRAM is below the configured training threshold.">
         <span><strong>EX-48-B · GPU 1</strong><small>example node</small></span>
         <span>48 GB</span><span>12.4 GB</span><span class="node-reservation">IDLE</span><span class="node-decision" data-node-decision>REJECT</span>
-      </div>
-      <div class="cluster-node-row" data-node-id="EX-24-B" data-vram="24" data-free="23200" data-holder="0" data-protected="0">
+      </button>
+      <button type="button" class="cluster-node-row cluster-node-button" data-node-id="EX-24-B" data-vram="24" data-free="23200" data-holder="0" data-protected="0" data-node-note="Idle 24 GB card. Good inference/precompute target and preserved from training jobs that require 48 GB.">
         <span><strong>EX-24-B · GPU 3</strong><small>example node</small></span>
         <span>24 GB</span><span>23.2 GB</span><span class="node-reservation">IDLE</span><span class="node-decision" data-node-decision>SKIP</span>
-      </div>
-      <div class="cluster-node-row" data-node-id="EX-48-C" data-vram="48" data-free="3100" data-holder="0" data-protected="1">
+      </button>
+      <button type="button" class="cluster-node-row cluster-node-button" data-node-id="EX-48-C" data-vram="48" data-free="3100" data-holder="0" data-protected="1" data-node-note="Protected/busy card. Existing workload or active lease makes the target ineligible regardless of hardware tier.">
         <span><strong>EX-48-C · GPU 0</strong><small>example node</small></span>
         <span>48 GB</span><span>3.1 GB</span><span class="node-reservation">PROTECTED</span><span class="node-decision" data-node-decision>REJECT</span>
+      </button>
+    </div>
+
+    <div class="cluster-node-inspector" data-node-inspector>
+      <div>
+        <span class="demo-label">Hovered candidate</span>
+        <strong data-inspector-node>EX-48-A · GPU 2</strong>
+      </div>
+      <div>
+        <span class="demo-label">Eligibility reasoning</span>
+        <p data-inspector-copy>Holder-backed 48 GB card with enough free VRAM. Preferred training candidate when identity and reservation checks pass.</p>
+      </div>
+      <div class="inspector-flags">
+        <span data-inspector-tier>48 GB tier</span>
+        <span data-inspector-free>28.9 GB free</span>
+        <span data-inspector-state>HOLDING</span>
       </div>
     </div>
 
@@ -295,6 +311,11 @@ const { skill } = Astro.props;
       const dispatchLine=root.querySelector('[data-dispatch-line]');
       const dispatchCopy=root.querySelector('[data-dispatch-copy]');
       const rows=[...root.querySelectorAll('.cluster-node-row[data-node-id]')];
+      const inspectorNode=root.querySelector('[data-inspector-node]');
+      const inspectorCopy=root.querySelector('[data-inspector-copy]');
+      const inspectorTier=root.querySelector('[data-inspector-tier]');
+      const inspectorFree=root.querySelector('[data-inspector-free]');
+      const inspectorState=root.querySelector('[data-inspector-state]');
 
       const nodes=rows.map((row)=>({
         row,
@@ -305,6 +326,20 @@ const { skill } = Astro.props;
         protected:row.dataset.protected==='1',
         decision:row.querySelector('[data-node-decision]')
       }));
+
+      const inspectNode=(node)=>{
+        if(!node) return;
+        rows.forEach(r=>r.classList.toggle('is-inspected',r===node.row));
+        inspectorNode.textContent=node.row.querySelector('strong')?.textContent || node.id;
+        inspectorCopy.textContent=node.row.dataset.nodeNote || 'Synthetic candidate used to demonstrate dispatcher reasoning.';
+        inspectorTier.textContent=`${node.vram} GB tier`;
+        inspectorFree.textContent=`${(node.free/1000).toFixed(1)} GB free`;
+        inspectorState.textContent=node.row.querySelector('.node-reservation')?.textContent || 'UNKNOWN';
+      };
+      nodes.forEach((node)=>{
+        ['mouseenter','focus','click'].forEach(evt=>node.row.addEventListener(evt,()=>inspectNode(node)));
+      });
+      inspectNode(nodes[1] || nodes[0]);
 
       const renderTask=(button)=>{
         setSelected(taskButtons,button);
