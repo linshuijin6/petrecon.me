@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Tag from '../../components/Tag.astro';
-import SkillMiniDiagram from '../../components/SkillMiniDiagram.astro';
+import SkillInteractiveDemo from '../../components/SkillInteractiveDemo.astro';
 import { skills } from '../../data/site';
 
 export function getStaticPaths() {
@@ -10,33 +10,51 @@ export function getStaticPaths() {
 const { skill } = Astro.props;
 ---
 <BaseLayout title={`${skill.name} · Shuijin Lin`} description={skill.summary}>
-  <section class="page-hero shell">
+  <section class="page-hero shell skill-page-hero">
     <div class="eyebrow">{skill.type}</div>
     <h1><code>{skill.name}</code></h1>
     <p>{skill.summary}</p>
     <span class="proof-chip detail-proof">{skill.proof}</span>
   </section>
-  <section class="section shell skill-detail">
-    <div>
-      <div class="eyebrow">Architecture preview</div>
-      <h2>How the component reasons about work</h2>
-      <SkillMiniDiagram skill={skill} />
+
+  <section class="section shell skill-demo-section">
+    <div class="section-title">
+      <div class="eyebrow">Interactive architecture</div>
+      <h2>Explore how this component behaves</h2>
+      <p>Hover, focus, or click the controls below. The demo exposes the decision logic and guardrails without revealing private prompts, live infrastructure, or unpublished experiment details.</p>
     </div>
-    <div>
-      <div class="eyebrow">Problem</div>
-      <h2>Why this exists</h2>
-      <p class="large-copy">{skill.problem}</p>
-    </div>
-    <div>
-      <div class="eyebrow">Workflow</div>
-      <div class="vertical-flow">
-        {skill.workflow.map((step: string, index: number) => <><div class="flow-step">{step}</div>{index < skill.workflow.length - 1 && <div class="flow-down">↓</div>}</>)}
+    <SkillInteractiveDemo skill={skill} />
+  </section>
+
+  <section class="section band">
+    <div class="shell skill-explain-grid">
+      <div>
+        <div class="eyebrow">Problem</div>
+        <h2>Why this exists</h2>
+        <p class="large-copy">{skill.problem}</p>
+      </div>
+      <div class="skill-contract">
+        <div class="eyebrow">Operational contract</div>
+        <h2>What remains invariant</h2>
+        <div class="tag-row">{skill.principles.map((p: string) => <Tag>{p}</Tag>)}</div>
       </div>
     </div>
-    <div>
-      <div class="eyebrow">Design principles</div>
-      <div class="tag-row">{skill.principles.map((p: string) => <Tag>{p}</Tag>)}</div>
-      <div class="disclosure"><strong>Public disclosure boundary</strong><p>This portfolio presents architecture, role boundaries and sanitized examples only. Credentials, internal infrastructure, private prompts and unpublished scientific details are intentionally excluded.</p></div>
+  </section>
+
+  <section class="section shell">
+    <div class="eyebrow">Workflow contract</div>
+    <h2>What the component is responsible for</h2>
+    <div class="workflow-contract-row">
+      {skill.workflow.map((step: string, index: number) => (
+        <>
+          <div class="contract-step"><span>{String(index + 1).padStart(2,'0')}</span><strong>{step}</strong></div>
+          {index < skill.workflow.length - 1 && <div class="contract-arrow">→</div>}
+        </>
+      ))}
+    </div>
+    <div class="disclosure disclosure-wide">
+      <strong>Public disclosure boundary</strong>
+      <p>This portfolio presents architecture, role boundaries, guardrails, and sanitized demonstrations only. Credentials, internal infrastructure identifiers, private prompts, live task state, and unpublished scientific details are intentionally excluded.</p>
     </div>
   </section>
 </BaseLayout>
